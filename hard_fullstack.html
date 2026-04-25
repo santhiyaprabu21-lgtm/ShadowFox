@@ -1,0 +1,849 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #0f1117;
+}
+:root{
+  --sidebar-w:220px;
+  --header-h:56px;
+  --radius:10px;
+  --c-bg:#0f1117;
+  --c-surface:#181c27;
+  --c-surface2:#1e2335;
+  --c-border:#2a3050;
+  --c-text:#e8eaf6;
+  --c-muted:#7b82a8;
+  --c-accent:#6c63ff;
+  --c-accent2:#4ecdc4;
+  --c-success:#22c55e;
+  --c-warn:#f59e0b;
+  --c-danger:#ef4444;
+  --c-info:#3b82f6;
+  --shadow:0 2px 12px rgba(0,0,0,.35);
+  font-family:var(--font-sans,system-ui,sans-serif)
+}
+.app{display:flex;flex-direction:column;min-height:100vh;background:var(--c-bg);color:var(--c-text);border-radius:0;overflow:hidden;border:0.5px solid var(--c-border)}
+.topbar{display:flex;align-items:center;height:var(--header-h);background:var(--c-surface);border-bottom:0.5px solid var(--c-border);padding:0 16px;gap:12px;flex-shrink:0}
+.logo{font-size:15px;font-weight:500;color:#fff;display:flex;align-items:center;gap:7px}
+.logo-icon{width:26px;height:26px;background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.spacer{flex:1}
+.topbar-btn{background:var(--c-surface2);border:0.5px solid var(--c-border);color:var(--c-text);border-radius:7px;padding:5px 11px;font-size:12px;cursor:pointer;transition:background .15s}
+.topbar-btn:hover{background:var(--c-border)}
+.avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#6c63ff,#4ecdc4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;cursor:pointer;flex-shrink:0}
+.badge-notif{background:var(--c-danger);color:#fff;border-radius:50%;width:17px;height:17px;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.body{display:flex;flex:1;overflow:hidden}
+.sidebar{width:var(--sidebar-w);background:var(--c-surface);border-right:0.5px solid var(--c-border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar-section{padding:12px 10px 4px;font-size:10px;color:var(--c-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:500}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--c-muted);margin:1px 6px;transition:all .15s}
+.nav-item:hover{background:var(--c-surface2);color:var(--c-text)}
+.nav-item.active{background:rgba(108,99,255,.18);color:#a8a3ff}
+.nav-icon{font-size:14px;width:18px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--c-accent);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:600}
+.content{flex:1;overflow-y:auto;padding:20px}
+.page{display:none}
+.page.active{display:block}
+
+/* Auth pages */
+.auth-wrap{display:flex;align-items:center;justify-content:center;min-height:500px}
+.auth-card{background:var(--c-surface);border:0.5px solid var(--c-border);border-radius:14px;padding:32px;width:340px}
+.auth-title{font-size:20px;font-weight:500;margin-bottom:4px}
+.auth-sub{font-size:13px;color:var(--c-muted);margin-bottom:24px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;color:var(--c-muted);margin-bottom:5px;display:block;font-weight:500}
+.form-input{width:100%;background:var(--c-bg);border:0.5px solid var(--c-border);color:var(--c-text);border-radius:8px;padding:9px 12px;font-size:13px;outline:none;transition:border .15s}
+.form-input:focus{border-color:var(--c-accent)}
+.form-input.error{border-color:var(--c-danger)}
+.form-error{font-size:11px;color:var(--c-danger);margin-top:4px}
+.btn{width:100%;padding:10px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-primary{background:var(--c-accent);color:#fff}
+.btn-primary:hover{background:#5a54d4}
+.btn-secondary{background:var(--c-surface2);border:0.5px solid var(--c-border);color:var(--c-text)}
+.btn-secondary:hover{background:var(--c-border)}
+.btn-sm{padding:6px 12px;width:auto;font-size:12px;border-radius:7px}
+.auth-link{text-align:center;margin-top:16px;font-size:12px;color:var(--c-muted)}
+.auth-link span{color:var(--c-accent);cursor:pointer}
+.auth-link span:hover{text-decoration:underline}
+.divider{display:flex;align-items:center;gap:10px;margin:16px 0}
+.divider::before,.divider::after{content:'';flex:1;height:0.5px;background:var(--c-border)}
+.divider span{font-size:11px;color:var(--c-muted)}
+
+/* Dashboard */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.page-title{font-size:18px;font-weight:500}
+.page-sub{font-size:12px;color:var(--c-muted);margin-top:2px}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.metric-card{background:var(--c-surface);border:0.5px solid var(--c-border);border-radius:var(--radius);padding:14px}
+.metric-label{font-size:11px;color:var(--c-muted);font-weight:500;margin-bottom:8px}
+.metric-value{font-size:22px;font-weight:500}
+.metric-change{font-size:11px;margin-top:4px}
+.positive{color:var(--c-success)}
+.negative{color:var(--c-danger)}
+.neutral{color:var(--c-muted)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.card{background:var(--c-surface);border:0.5px solid var(--c-border);border-radius:var(--radius);padding:16px}
+.card-title{font-size:13px;font-weight:500;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.card-title-text{display:flex;align-items:center;gap:7px}
+.mini-bar{display:flex;flex-direction:column;gap:8px}
+.bar-row{display:flex;align-items:center;gap:9px;font-size:12px}
+.bar-label{color:var(--c-muted);width:80px;flex-shrink:0;font-size:11px}
+.bar-track{flex:1;height:6px;background:var(--c-surface2);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .3s}
+.bar-val{width:32px;text-align:right;font-size:11px;font-weight:500}
+
+/* Activity feed */
+.activity-list{display:flex;flex-direction:column;gap:10px}
+.activity-item{display:flex;gap:10px;align-items:flex-start}
+.activity-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.activity-text{font-size:12px;color:var(--c-muted);line-height:1.5}
+.activity-text strong{color:var(--c-text);font-weight:500}
+.activity-time{font-size:11px;color:var(--c-muted);margin-top:2px}
+
+/* Donut chart */
+.donut-wrap{display:flex;align-items:center;gap:14px}
+.donut-legend{display:flex;flex-direction:column;gap:6px}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--c-muted)}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* Projects table */
+.table-wrap{overflow:hidden}
+.data-table{width:100%;border-collapse:collapse;font-size:12px}
+.data-table th{text-align:left;padding:8px 12px;color:var(--c-muted);font-weight:500;font-size:11px;border-bottom:0.5px solid var(--c-border);text-transform:uppercase;letter-spacing:.05em}
+.data-table td{padding:10px 12px;border-bottom:0.5px solid rgba(42,48,80,.5);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(255,255,255,.02)}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:500}
+.status-active{background:rgba(34,197,94,.12);color:#4ade80}
+.status-review{background:rgba(245,158,11,.12);color:#fbbf24}
+.status-done{background:rgba(59,130,246,.12);color:#60a5fa}
+.status-blocked{background:rgba(239,68,68,.12);color:#f87171}
+.progress-mini{height:4px;background:var(--c-surface2);border-radius:2px;overflow:hidden;width:70px}
+.progress-fill{height:100%;border-radius:2px}
+.role-badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:500}
+.role-admin{background:rgba(108,99,255,.18);color:#a8a3ff}
+.role-user{background:rgba(42,48,80,.8);color:var(--c-muted)}
+.action-btn{background:none;border:0.5px solid var(--c-border);color:var(--c-muted);border-radius:5px;padding:3px 8px;font-size:10px;cursor:pointer;transition:all .15s}
+.action-btn:hover{background:var(--c-surface2);color:var(--c-text)}
+
+/* Kanban */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kanban-col{background:var(--c-surface);border:0.5px solid var(--c-border);border-radius:var(--radius);padding:12px}
+.kanban-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kanban-col-title{font-size:12px;font-weight:500;display:flex;align-items:center;gap:6px}
+.k-count{background:var(--c-surface2);border-radius:5px;padding:1px 6px;font-size:10px;color:var(--c-muted)}
+.kanban-card{background:var(--c-bg);border:0.5px solid var(--c-border);border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:border .15s}
+.kanban-card:hover{border-color:var(--c-accent)}
+.k-card-title{font-size:12px;font-weight:500;margin-bottom:5px}
+.k-card-meta{display:flex;align-items:center;justify-content:space-between;margin-top:7px}
+.k-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500}
+.k-avatar{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:700}
+.priority{font-size:10px;display:flex;align-items:center;gap:3px}
+.p-high{color:var(--c-danger)}
+.p-med{color:var(--c-warn)}
+.p-low{color:var(--c-success)}
+
+/* Settings */
+.settings-grid{display:grid;grid-template-columns:180px 1fr;gap:20px}
+.settings-nav{display:flex;flex-direction:column;gap:2px}
+.settings-nav-item{padding:8px 12px;border-radius:7px;font-size:13px;color:var(--c-muted);cursor:pointer;transition:all .15s}
+.settings-nav-item:hover{background:var(--c-surface2);color:var(--c-text)}
+.settings-nav-item.active{background:rgba(108,99,255,.18);color:#a8a3ff}
+.settings-section{background:var(--c-surface);border:0.5px solid var(--c-border);border-radius:var(--radius);padding:20px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:0.5px solid var(--c-border)}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:13px;font-weight:500}
+.settings-desc{font-size:11px;color:var(--c-muted);margin-top:2px}
+.toggle{width:38px;height:20px;background:var(--c-border);border-radius:10px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--c-accent)}
+.toggle::after{content:'';width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:left .2s}
+.toggle.on::after{left:20px}
+.select{background:var(--c-bg);border:0.5px solid var(--c-border);color:var(--c-text);border-radius:7px;padding:6px 10px;font-size:12px;outline:none}
+
+/* Security panel */
+.security-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.sec-card{background:var(--c-surface);border:0.5px solid var(--c-border);border-radius:var(--radius);padding:14px}
+.sec-icon{font-size:20px;margin-bottom:8px}
+.sec-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.sec-desc{font-size:11px;color:var(--c-muted)}
+.sec-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;margin-top:8px;font-weight:500}
+.enabled{color:var(--c-success)}
+.enabled::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--c-success);display:block}
+
+/* Notification */
+.toast{position:absolute;bottom:16px;right:16px;background:var(--c-surface);border:0.5px solid var(--c-border);border-radius:9px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:12px;box-shadow:var(--shadow);animation:toastIn .25s ease;z-index:100;max-width:280px}
+.toast-icon{font-size:16px}
+@keyframes toastIn{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* Loading spinner */
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Scroll */
+.content::-webkit-scrollbar,.sidebar::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-track,.sidebar::-webkit-scrollbar-track{background:transparent}
+.content::-webkit-scrollbar-thumb,.sidebar::-webkit-scrollbar-thumb{background:var(--c-border);border-radius:2px}
+
+/* Chip */
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;border:0.5px solid}
+
+/* Responsive tweak */
+@media(max-width:600px){
+  .sidebar{display:none}
+  .metrics-grid{grid-template-columns:1fr 1fr}
+  .two-col{grid-template-columns:1fr}
+  .kanban{grid-template-columns:1fr 1fr}
+  .security-grid{grid-template-columns:1fr}
+}
+</style>
+
+
+<div class="app" id="app" style="position:relative">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">PF</div>
+      ProjectFlow
+    </div>
+    <div class="spacer"></div>
+    <div id="env-badge" style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--c-muted)">
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--c-success)"></div> Production
+    </div>
+    <button class="topbar-btn" onclick="showToast('🔔','2 new notifications','info')">🔔 <span class="badge-notif">2</span></button>
+    <div class="avatar" onclick="navTo('settings')" title="Profile">AD</div>
+  </div>
+
+  <div class="body">
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <div style="padding:14px 10px 4px">
+        <div style="font-size:11px;color:var(--c-muted);margin-bottom:8px">Workspace: <strong style="color:var(--c-text)">Acme Corp</strong></div>
+      </div>
+      <div class="sidebar-section">Main</div>
+      <div class="nav-item active" id="nav-dashboard" onclick="navTo('dashboard')"><span class="nav-icon">◈</span> Dashboard</div>
+      <div class="nav-item" id="nav-projects" onclick="navTo('projects')"><span class="nav-icon">⊞</span> Projects <span class="nav-badge">4</span></div>
+      <div class="nav-item" id="nav-tasks" onclick="navTo('tasks')"><span class="nav-icon">✦</span> Task Board</div>
+      <div class="sidebar-section">Management</div>
+      <div class="nav-item" id="nav-team" onclick="navTo('team')"><span class="nav-icon">◉</span> Team</div>
+      <div class="nav-item" id="nav-security" onclick="navTo('security')"><span class="nav-icon">⬡</span> Security</div>
+      <div class="nav-item" id="nav-settings" onclick="navTo('settings')"><span class="nav-icon">⊙</span> Settings</div>
+      <div class="sidebar-section">Account</div>
+      <div class="nav-item" id="nav-login" onclick="navTo('login')"><span class="nav-icon">→</span> Sign In / Register</div>
+      <div style="flex:1"></div>
+      <div style="padding:12px;border-top:0.5px solid var(--c-border);margin-top:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="avatar" style="width:26px;height:26px;font-size:9px">AD</div>
+          <div>
+            <div style="font-size:12px;font-weight:500">Alex Davis</div>
+            <div style="font-size:10px;color:var(--c-muted)">admin@acme.com</div>
+          </div>
+          <span class="role-badge role-admin" style="margin-left:auto;font-size:9px">Admin</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT AREA -->
+    <div class="content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Dashboard</div>
+            <div class="page-sub">Good morning, Alex — here's your overview</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="showToast('📊','Generating report...','success')">Export Report</button>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Active Projects</div>
+            <div class="metric-value">24</div>
+            <div class="metric-change positive">↑ 12% vs last month</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Tasks Completed</div>
+            <div class="metric-value">847</div>
+            <div class="metric-change positive">↑ 8.3% vs last month</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Team Members</div>
+            <div class="metric-value">31</div>
+            <div class="metric-change neutral">+3 this quarter</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Overdue Tasks</div>
+            <div class="metric-value" style="color:var(--c-danger)">7</div>
+            <div class="metric-change negative">↑ 2 since last week</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">
+              <span class="card-title-text">Project Progress</span>
+              <span style="font-size:11px;color:var(--c-muted)">This month</span>
+            </div>
+            <div class="mini-bar">
+              <div class="bar-row">
+                <span class="bar-label">API Rebuild</span>
+                <div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--c-accent)"></div></div>
+                <span class="bar-val">78%</span>
+              </div>
+              <div class="bar-row">
+                <span class="bar-label">Mobile App</span>
+                <div class="bar-track"><div class="bar-fill" style="width:55%;background:var(--c-accent2)"></div></div>
+                <span class="bar-val">55%</span>
+              </div>
+              <div class="bar-row">
+                <span class="bar-label">Auth Redesign</span>
+                <div class="bar-track"><div class="bar-fill" style="width:92%;background:var(--c-success)"></div></div>
+                <span class="bar-val">92%</span>
+              </div>
+              <div class="bar-row">
+                <span class="bar-label">Data Pipeline</span>
+                <div class="bar-track"><div class="bar-fill" style="width:34%;background:var(--c-warn)"></div></div>
+                <span class="bar-val">34%</span>
+              </div>
+              <div class="bar-row">
+                <span class="bar-label">Dashboard UI</span>
+                <div class="bar-track"><div class="bar-fill" style="width:61%;background:var(--c-info)"></div></div>
+                <span class="bar-val">61%</span>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="card-title-text">Task Status</span></div>
+            <div class="donut-wrap">
+              <svg width="100" height="100" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1e2335" stroke-width="3.5"/>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#6c63ff" stroke-width="3.5" stroke-dasharray="38 62" stroke-dashoffset="25" stroke-linecap="round"/>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#4ecdc4" stroke-width="3.5" stroke-dasharray="22 78" stroke-dashoffset="-13" stroke-linecap="round"/>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f59e0b" stroke-width="3.5" stroke-dasharray="18 82" stroke-dashoffset="-35" stroke-linecap="round"/>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-dasharray="12 88" stroke-dashoffset="-53" stroke-linecap="round"/>
+                <text x="18" y="20" text-anchor="middle" font-size="6" fill="#e8eaf6" font-weight="500">847</text>
+              </svg>
+              <div class="donut-legend">
+                <div class="legend-item"><span class="legend-dot" style="background:#6c63ff"></span> Done (38%)</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#4ecdc4"></span> In Progress (22%)</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> Review (18%)</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span> Blocked (12%)</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#2a3050"></span> Backlog (10%)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-title">
+            <span class="card-title-text">Recent Activity</span>
+            <span style="font-size:11px;color:var(--c-accent);cursor:pointer">View all →</span>
+          </div>
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--c-success)"></div>
+              <div><div class="activity-text"><strong>Sarah K.</strong> completed task "Set up CI/CD pipeline" in <strong>API Rebuild</strong></div><div class="activity-time">2 min ago</div></div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--c-accent)"></div>
+              <div><div class="activity-text"><strong>Mark T.</strong> created new project <strong>Q4 Mobile Launch</strong> and assigned 5 members</div><div class="activity-time">18 min ago</div></div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--c-warn)"></div>
+              <div><div class="activity-text"><strong>System</strong> flagged 3 tasks in <strong>Data Pipeline</strong> as overdue — deadline passed</div><div class="activity-time">1 hr ago</div></div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--c-info)"></div>
+              <div><div class="activity-text"><strong>Alex D.</strong> updated role permissions for <strong>Jordan L.</strong> → Project Manager</div><div class="activity-time">3 hr ago</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PROJECTS ===== -->
+      <div class="page" id="page-projects">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Projects</div>
+            <div class="page-sub">4 active · 2 completed this month</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openModal()">+ New Project</button>
+        </div>
+        <div class="card table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Project</th><th>Status</th><th>Progress</th><th>Team</th><th>Deadline</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong style="font-size:13px">API Rebuild v3</strong><br><span style="color:var(--c-muted);font-size:10px">Backend · Node.js</span></td>
+                <td><span class="status-badge status-active">● Active</span></td>
+                <td><div class="progress-mini"><div class="progress-fill" style="width:78%;background:var(--c-accent)"></div></div><span style="font-size:10px;color:var(--c-muted);margin-left:4px">78%</span></td>
+                <td><div style="display:flex;gap:3px"><div class="k-avatar" style="background:#6c63ff">SK</div><div class="k-avatar" style="background:#4ecdc4">MT</div><div class="k-avatar" style="background:#f59e0b">JL</div></div></td>
+                <td style="color:var(--c-muted)">Apr 30, 2026</td>
+                <td><button class="action-btn" onclick="navTo('tasks')">Board</button> <button class="action-btn" onclick="showToast('✏️','Edit mode','info')">Edit</button></td>
+              </tr>
+              <tr>
+                <td><strong style="font-size:13px">Mobile App MVP</strong><br><span style="color:var(--c-muted);font-size:10px">Frontend · React Native</span></td>
+                <td><span class="status-badge status-review">◑ In Review</span></td>
+                <td><div class="progress-mini"><div class="progress-fill" style="width:55%;background:var(--c-accent2)"></div></div><span style="font-size:10px;color:var(--c-muted);margin-left:4px">55%</span></td>
+                <td><div style="display:flex;gap:3px"><div class="k-avatar" style="background:#ef4444">AD</div><div class="k-avatar" style="background:#22c55e">PR</div></div></td>
+                <td style="color:var(--c-muted)">May 15, 2026</td>
+                <td><button class="action-btn" onclick="navTo('tasks')">Board</button> <button class="action-btn" onclick="showToast('✏️','Edit mode','info')">Edit</button></td>
+              </tr>
+              <tr>
+                <td><strong style="font-size:13px">Auth Redesign</strong><br><span style="color:var(--c-muted);font-size:10px">Security · JWT/OAuth</span></td>
+                <td><span class="status-badge status-done">✓ Done</span></td>
+                <td><div class="progress-mini"><div class="progress-fill" style="width:92%;background:var(--c-success)"></div></div><span style="font-size:10px;color:var(--c-muted);margin-left:4px">92%</span></td>
+                <td><div style="display:flex;gap:3px"><div class="k-avatar" style="background:#6c63ff">SK</div><div class="k-avatar" style="background:#f59e0b">JL</div></div></td>
+                <td style="color:var(--c-success)">Mar 28, 2026</td>
+                <td><button class="action-btn" onclick="navTo('tasks')">Board</button> <button class="action-btn" onclick="showToast('✏️','Edit mode','info')">Edit</button></td>
+              </tr>
+              <tr>
+                <td><strong style="font-size:13px">Data Pipeline</strong><br><span style="color:var(--c-muted);font-size:10px">DevOps · PostgreSQL</span></td>
+                <td><span class="status-badge status-blocked">✕ Blocked</span></td>
+                <td><div class="progress-mini"><div class="progress-fill" style="width:34%;background:var(--c-warn)"></div></div><span style="font-size:10px;color:var(--c-muted);margin-left:4px">34%</span></td>
+                <td><div style="display:flex;gap:3px"><div class="k-avatar" style="background:#4ecdc4">MT</div><div class="k-avatar" style="background:#ef4444">PR</div></div></td>
+                <td style="color:var(--c-danger)">Apr 10, 2026 ⚠</td>
+                <td><button class="action-btn" onclick="navTo('tasks')">Board</button> <button class="action-btn" onclick="showToast('✏️','Edit mode','info')">Edit</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== TASK BOARD (Kanban) ===== -->
+      <div class="page" id="page-tasks">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Task Board</div>
+            <div class="page-sub">API Rebuild v3 · Kanban view</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="showToast('✦','New task created','success')">+ Add Task</button>
+        </div>
+        <div class="kanban">
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <div class="kanban-col-title"><span style="color:var(--c-muted)">●</span> Backlog <span class="k-count">3</span></div>
+            </div>
+            <div class="kanban-card">
+              <div class="k-card-title">Design API rate limiter</div>
+              <div style="font-size:10px;color:var(--c-muted)">No assignee</div>
+              <div class="k-card-meta">
+                <span class="k-tag" style="background:rgba(59,130,246,.12);color:#60a5fa">backend</span>
+                <span class="priority p-low">▼ Low</span>
+              </div>
+            </div>
+            <div class="kanban-card">
+              <div class="k-card-title">Write API documentation</div>
+              <div style="font-size:10px;color:var(--c-muted)">Jordan L.</div>
+              <div class="k-card-meta">
+                <span class="k-tag" style="background:rgba(108,99,255,.12);color:#a8a3ff">docs</span>
+                <span class="priority p-med">► Med</span>
+              </div>
+            </div>
+            <div class="kanban-card">
+              <div class="k-card-title">Add Swagger UI endpoint</div>
+              <div style="font-size:10px;color:var(--c-muted)">Unassigned</div>
+              <div class="k-card-meta">
+                <span class="k-tag" style="background:rgba(78,205,196,.12);color:#4ecdc4">api</span>
+                <span class="priority p-low">▼ Low</span>
+              </div>
+            </div>
+          </div>
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <div class="kanban-col-title"><span style="color:var(--c-accent)">●</span> In Progress <span class="k-count">4</span></div>
+            </div>
+            <div class="kanban-card" style="border-left:2px solid var(--c-danger)">
+              <div class="k-card-title">Implement JWT refresh tokens</div>
+              <div style="font-size:10px;color:var(--c-muted)">Sarah K.</div>
+              <div class="k-card-meta">
+                <span class="k-tag" style="background:rgba(239,68,68,.12);color:#f87171">security</span>
+                <span class="priority p-high">▲ High</span>
+              </div>
+            </div>
+            <div class="kanban-card">
+              <div class="k-card-title">Setup Docker container</div>
+              <div style="font-size:10px;color:var(--c-muted)">Mark T.</div>
+              <div class="k-card-meta">
+                <span class="k-tag" style="background:rgba(59,130,246,.12);color:#60a5fa">devops</span>
+                <span class="priority p-high">▲ High</span>
+              </div>
+            </div>
+            <div class="kanban-card">
+              <div class="k-card-title">Input sanitization middleware</div>
+              <div style="font-size:10px;color:var(--c-muted)">Alex D.</div>
+              <div class="k-card-meta">
+                <span class="k-tag" style="background:rgba(239,68,68,.12);color:#f87171">security</span>
+                <span class="priority p-high">▲ High</span>
+              </div>
+            </div>
+            <div class="kanban-card">
+              <div class="k-card-title">PostgreSQL schema migration</div>
+              <div style="font-size:10px;color:var(--c-muted)">Priya R.</div>
+              <div class="k-card-meta">
+                <span class="k-tag" style="background:rgba(34,197,94,.12);color:#4ade80">db</span>
+                <span class="priority p-med">► Med</span>
+              </div>
+            </div>
+          </div>
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <div class="kanban-col-title"><span style="color:var(--c-warn)">●</span> In Review <span class="k-count">2</span></div>
+            </div>
+            <div class="kanban-card">
+              <div class="k-card-title">CSRF token implementation</div>
+              <div style="font-size:10px;color:var(--c-muted)">Sarah K.</div>
+              <div class="k-card-meta">
+                <span class="k-tag" style="background:rgba(239,68,68,.12);color:#f87171">security</span>
+                <span class="priority p-high">▲ High</span>
+              </div>
+            </div>
+            <div class="kanban-card">
+              <div class="k-card-title">Unit tests for auth module</div>
+              <div style="font-size:10px;color:var(--c-muted)">Jordan L.</div>
+              <div class="k-card-meta">
+                <span class="k-tag" style="background:rgba(108,99,255,.12);color:#a8a3ff">testing</span>
+                <span class="priority p-med">► Med</span>
+              </div>
+            </div>
+          </div>
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <div class="kanban-col-title"><span style="color:var(--c-success)">●</span> Done <span class="k-count">5</span></div>
+            </div>
+            <div class="kanban-card" style="opacity:.7">
+              <div class="k-card-title">Setup CI/CD pipeline</div>
+              <div style="font-size:10px;color:var(--c-muted)">Sarah K.</div>
+              <div class="k-card-meta">
+                <span class="k-tag" style="background:rgba(59,130,246,.12);color:#60a5fa">devops</span>
+                <span class="priority p-high">▲ High</span>
+              </div>
+            </div>
+            <div class="kanban-card" style="opacity:.7">
+              <div class="k-card-title">bcrypt password hashing</div>
+              <div style="font-size:10px;color:var(--c-muted)">Alex D.</div>
+              <div class="k-card-meta">
+                <span class="k-tag" style="background:rgba(239,68,68,.12);color:#f87171">security</span>
+                <span class="priority p-high">▲ High</span>
+              </div>
+            </div>
+            <div class="kanban-card" style="opacity:.7">
+              <div class="k-card-title">XSS protection middleware</div>
+              <div style="font-size:10px;color:var(--c-muted)">Mark T.</div>
+              <div class="k-card-meta">
+                <span class="k-tag" style="background:rgba(239,68,68,.12);color:#f87171">security</span>
+                <span class="priority p-low">▼ Low</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TEAM ===== -->
+      <div class="page" id="page-team">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Team</div>
+            <div class="page-sub">31 members · Role-based access control enabled</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="showToast('📧','Invite sent!','success')">Invite Member</button>
+        </div>
+        <div class="card table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Member</th><th>Role</th><th>Status</th><th>Projects</th><th>Last Active</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:9px"><div class="k-avatar" style="background:#6c63ff;width:28px;height:28px;font-size:10px">AD</div><div><div style="font-size:13px;font-weight:500">Alex Davis</div><div style="font-size:10px;color:var(--c-muted)">admin@acme.com</div></div></div></td>
+                <td><span class="role-badge role-admin">Admin</span></td>
+                <td><span class="status-badge status-active" style="font-size:9px">● Online</span></td>
+                <td style="color:var(--c-muted)">All (24)</td>
+                <td style="color:var(--c-muted)">Now</td>
+                <td><button class="action-btn" onclick="showToast('👤','Cannot edit owner','warn')">Edit</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:9px"><div class="k-avatar" style="background:#4ecdc4;width:28px;height:28px;font-size:10px">SK</div><div><div style="font-size:13px;font-weight:500">Sarah Kim</div><div style="font-size:10px;color:var(--c-muted)">s.kim@acme.com</div></div></div></td>
+                <td><span class="role-badge" style="background:rgba(78,205,196,.12);color:#4ecdc4">Manager</span></td>
+                <td><span class="status-badge status-active" style="font-size:9px">● Online</span></td>
+                <td style="color:var(--c-muted)">API Rebuild, Auth</td>
+                <td style="color:var(--c-muted)">5 min ago</td>
+                <td><button class="action-btn" onclick="showToast('✏️','Edit permissions','info')">Edit</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:9px"><div class="k-avatar" style="background:#f59e0b;width:28px;height:28px;font-size:10px">MT</div><div><div style="font-size:13px;font-weight:500">Mark Torres</div><div style="font-size:10px;color:var(--c-muted)">m.torres@acme.com</div></div></div></td>
+                <td><span class="role-badge role-user">Developer</span></td>
+                <td><span class="status-badge" style="background:rgba(88,88,88,.1);color:var(--c-muted);font-size:9px">○ Away</span></td>
+                <td style="color:var(--c-muted)">Mobile, Pipeline</td>
+                <td style="color:var(--c-muted)">2 hr ago</td>
+                <td><button class="action-btn" onclick="showToast('✏️','Edit permissions','info')">Edit</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:9px"><div class="k-avatar" style="background:#ef4444;width:28px;height:28px;font-size:10px">JL</div><div><div style="font-size:13px;font-weight:500">Jordan Lee</div><div style="font-size:10px;color:var(--c-muted)">j.lee@acme.com</div></div></div></td>
+                <td><span class="role-badge role-user">Developer</span></td>
+                <td><span class="status-badge status-active" style="font-size:9px">● Online</span></td>
+                <td style="color:var(--c-muted)">API Rebuild, Auth</td>
+                <td style="color:var(--c-muted)">12 min ago</td>
+                <td><button class="action-btn" onclick="showToast('✏️','Edit permissions','info')">Edit</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:9px"><div class="k-avatar" style="background:#22c55e;width:28px;height:28px;font-size:10px">PR</div><div><div style="font-size:13px;font-weight:500">Priya Rao</div><div style="font-size:10px;color:var(--c-muted)">p.rao@acme.com</div></div></div></td>
+                <td><span class="role-badge role-user">Developer</span></td>
+                <td><span class="status-badge" style="background:rgba(88,88,88,.1);color:var(--c-muted);font-size:9px">○ Offline</span></td>
+                <td style="color:var(--c-muted)">Mobile, Pipeline</td>
+                <td style="color:var(--c-muted)">1 day ago</td>
+                <td><button class="action-btn" onclick="showToast('⚠️','Remove member?','warn')">Remove</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== SECURITY ===== -->
+      <div class="page" id="page-security">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Security Center</div>
+            <div class="page-sub">All critical protections active — last audit: Apr 22, 2026</div>
+          </div>
+          <span class="chip" style="background:rgba(34,197,94,.12);color:var(--c-success);border-color:rgba(34,197,94,.25)">⬡ Secure</span>
+        </div>
+        <div class="security-grid">
+          <div class="sec-card">
+            <div class="sec-icon">🔑</div>
+            <div class="sec-title">JWT Authentication</div>
+            <div class="sec-desc">RS256-signed tokens · 15min access / 7d refresh · httpOnly cookies</div>
+            <div class="sec-status enabled">Enabled</div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-icon">🔒</div>
+            <div class="sec-title">Password Hashing</div>
+            <div class="sec-desc">bcrypt with salt rounds=12 · Passwords never stored in plaintext</div>
+            <div class="sec-status enabled">Enabled</div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-icon">🛡</div>
+            <div class="sec-title">CSRF Protection</div>
+            <div class="sec-desc">Double-submit cookie + SameSite=Strict headers on all mutating requests</div>
+            <div class="sec-status enabled">Enabled</div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-icon">🧹</div>
+            <div class="sec-title">XSS / Injection Guard</div>
+            <div class="sec-desc">helmet.js · DOMPurify · Parameterized queries · Joi input validation</div>
+            <div class="sec-status enabled">Enabled</div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-icon">⏱</div>
+            <div class="sec-title">API Rate Limiting</div>
+            <div class="sec-desc">express-rate-limit · 100 req/15min per IP · Redis-backed sliding window</div>
+            <div class="sec-status enabled">Enabled</div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-icon">👁</div>
+            <div class="sec-title">Audit Logging</div>
+            <div class="sec-desc">Winston + Morgan · All auth events, admin actions, and errors logged</div>
+            <div class="sec-status enabled">Enabled</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-text">Environment Variables</span><span style="font-size:11px;color:var(--c-success)">✓ Secured via .env + Vault</span></div>
+          <div style="background:var(--c-bg);border-radius:8px;padding:14px;font-family:var(--font-mono,monospace);font-size:11px;color:var(--c-muted);line-height:1.9">
+            <span style="color:#4ade80">JWT_SECRET</span>=<span style="color:var(--c-muted)">••••••••••••••••••••••••</span> <span style="color:#374151">← never exposed</span><br>
+            <span style="color:#4ade80">DATABASE_URL</span>=<span style="color:var(--c-muted)">••••••••••••••••••••••••</span><br>
+            <span style="color:#4ade80">BCRYPT_ROUNDS</span>=<span style="color:#60a5fa">12</span><br>
+            <span style="color:#4ade80">NODE_ENV</span>=<span style="color:#f59e0b">production</span><br>
+            <span style="color:#4ade80">CORS_ORIGIN</span>=<span style="color:#a8a3ff">https://app.projectflow.io</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS ===== -->
+      <div class="page" id="page-settings">
+        <div class="page-header">
+          <div class="page-title">Settings</div>
+        </div>
+        <div class="settings-grid">
+          <div class="settings-nav">
+            <div class="settings-nav-item active">Profile</div>
+            <div class="settings-nav-item">Notifications</div>
+            <div class="settings-nav-item">API Keys</div>
+            <div class="settings-nav-item">Billing</div>
+            <div class="settings-nav-item">Danger Zone</div>
+          </div>
+          <div>
+            <div class="settings-section" style="margin-bottom:14px">
+              <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:0.5px solid var(--c-border)">
+                <div class="avatar" style="width:56px;height:56px;font-size:18px">AD</div>
+                <div><div style="font-weight:500;margin-bottom:3px">Alex Davis</div><div style="font-size:12px;color:var(--c-muted)">admin@acme.com · Admin</div></div>
+                <button class="btn btn-secondary btn-sm" style="margin-left:auto" onclick="showToast('📷','Upload avatar','info')">Change Avatar</button>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="form-group" style="margin:0"><label class="form-label">First Name</label><input class="form-input" value="Alex" style="font-size:12px"></div>
+                <div class="form-group" style="margin:0"><label class="form-label">Last Name</label><input class="form-input" value="Davis" style="font-size:12px"></div>
+                <div class="form-group" style="margin:0"><label class="form-label">Email</label><input class="form-input" value="admin@acme.com" style="font-size:12px"></div>
+                <div class="form-group" style="margin:0"><label class="form-label">Timezone</label><select class="select" style="width:100%"><option>Asia/Kolkata (IST)</option><option>America/New_York</option></select></div>
+              </div>
+              <button class="btn btn-primary btn-sm" style="margin-top:14px" onclick="showToast('✓','Profile saved','success')">Save Changes</button>
+            </div>
+            <div class="settings-section">
+              <div class="card-title" style="margin-bottom:8px"><span>Preferences</span></div>
+              <div class="settings-row">
+                <div><div class="settings-label">Email notifications</div><div class="settings-desc">Receive updates on task assignments and deadlines</div></div>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="settings-row">
+                <div><div class="settings-label">2-Factor Authentication</div><div class="settings-desc">Add an extra layer of security to your account</div></div>
+                <div class="toggle" onclick="this.classList.toggle('on');showToast('🔐','2FA enabled','success')"></div>
+              </div>
+              <div class="settings-row">
+                <div><div class="settings-label">Activity digest</div><div class="settings-desc">Weekly email summarising your team's progress</div></div>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== LOGIN PAGE ===== -->
+      <div class="page" id="page-login">
+        <div class="auth-wrap">
+          <div id="login-panel">
+            <div class="auth-card">
+              <div class="auth-title">Welcome back</div>
+              <div class="auth-sub">Sign in to your ProjectFlow workspace</div>
+              <div class="form-group">
+                <label class="form-label">Email address</label>
+                <input class="form-input" id="email" type="email" placeholder="you@company.com">
+                <div class="form-error" id="email-err" style="display:none">Please enter a valid email</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Password</label>
+                <input class="form-input" id="password" type="password" placeholder="Min. 8 characters">
+                <div class="form-error" id="pass-err" style="display:none">Password must be 8+ characters</div>
+              </div>
+              <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+                <span style="font-size:12px;color:var(--c-accent);cursor:pointer">Forgot password?</span>
+              </div>
+              <button class="btn btn-primary" id="login-btn" onclick="doLogin()">Sign In</button>
+              <div class="divider"><span>or</span></div>
+              <button class="btn btn-secondary" onclick="showToast('🔑','OAuth flow would open here','info')">Continue with Google</button>
+              <div class="auth-link">Don't have an account? <span onclick="showRegister()">Register free</span></div>
+            </div>
+          </div>
+          <div id="register-panel" style="display:none">
+            <div class="auth-card">
+              <div class="auth-title">Create account</div>
+              <div class="auth-sub">Start your 14-day free trial — no credit card needed</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group"><label class="form-label">First name</label><input class="form-input" placeholder="Alex"></div>
+                <div class="form-group"><label class="form-label">Last name</label><input class="form-input" placeholder="Davis"></div>
+              </div>
+              <div class="form-group"><label class="form-label">Work email</label><input class="form-input" type="email" placeholder="you@company.com"></div>
+              <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" placeholder="Min. 8 characters + symbol"></div>
+              <div style="font-size:11px;color:var(--c-muted);margin-bottom:14px">By signing up you agree to our <span style="color:var(--c-accent)">Terms of Service</span> and <span style="color:var(--c-accent)">Privacy Policy</span></div>
+              <button class="btn btn-primary" onclick="showToast('🎉','Account created! Check email','success');showLogin()">Create Account</button>
+              <div class="auth-link">Already have an account? <span onclick="showLogin()">Sign in</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end content -->
+  </div><!-- end body -->
+
+  <!-- Modal overlay -->
+  <div id="modal-overlay" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:50;display:none;align-items:center;justify-content:center">
+    <div style="background:var(--c-surface);border:0.5px solid var(--c-border);border-radius:14px;padding:24px;width:340px">
+      <div style="font-size:15px;font-weight:500;margin-bottom:16px">New Project</div>
+      <div class="form-group"><label class="form-label">Project name</label><input class="form-input" placeholder="e.g. Q4 API Launch"></div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" placeholder="What is this project about?" style="resize:none;height:70px"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-group"><label class="form-label">Deadline</label><input class="form-input" type="date"></div>
+        <div class="form-group"><label class="form-label">Priority</label><select class="select" style="width:100%;height:36px"><option>High</option><option>Medium</option><option>Low</option></select></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button class="btn btn-primary" style="flex:1" onclick="closeModal();showToast('✦','Project created!','success')">Create Project</button>
+        <button class="btn btn-secondary" style="flex:1" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" style="display:none;position:absolute;bottom:16px;right:16px;background:var(--c-surface);border:0.5px solid var(--c-border);border-radius:9px;padding:10px 14px;display:none;align-items:center;gap:9px;font-size:12px;z-index:200;max-width:260px"></div>
+</div>
+
+<script>
+function navTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const el = document.getElementById('page-' + page);
+  if(el) el.classList.add('active');
+  const nav = document.getElementById('nav-' + page);
+  if(nav) nav.classList.add('active');
+}
+
+function showToast(icon, msg, type) {
+  const t = document.getElementById('toast');
+  const colors = {success:'#22c55e',info:'#6c63ff',warn:'#f59e0b',error:'#ef4444'};
+  t.innerHTML = '<span style="font-size:15px">' + icon + '</span><span style="color:var(--c-text)">' + msg + '</span>';
+  t.style.display = 'flex';
+  t.style.borderColor = colors[type] || '#2a3050';
+  clearTimeout(window._toast);
+  window._toast = setTimeout(() => { t.style.display = 'none'; }, 2800);
+}
+
+function openModal() {
+  const m = document.getElementById('modal-overlay');
+  m.style.display = 'flex';
+}
+function closeModal() {
+  document.getElementById('modal-overlay').style.display = 'none';
+}
+
+function doLogin() {
+  const email = document.getElementById('email').value;
+  const pass = document.getElementById('password').value;
+  let ok = true;
+  const emailEl = document.getElementById('email');
+  const passEl = document.getElementById('password');
+  document.getElementById('email-err').style.display = 'none';
+  document.getElementById('pass-err').style.display = 'none';
+  emailEl.classList.remove('error');
+  passEl.classList.remove('error');
+  if(!email || !email.includes('@')) {
+    document.getElementById('email-err').style.display = 'block';
+    emailEl.classList.add('error');
+    ok = false;
+  }
+  if(pass.length < 8) {
+    document.getElementById('pass-err').style.display = 'block';
+    passEl.classList.add('error');
+    ok = false;
+  }
+  if(ok) {
+    const btn = document.getElementById('login-btn');
+    btn.innerHTML = '<span class="spinner"></span> Authenticating...';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = 'Sign In';
+      btn.disabled = false;
+      showToast('✓','Signed in successfully','success');
+      navTo('dashboard');
+    }, 1400);
+  }
+}
+
+function showRegister() {
+  document.getElementById('login-panel').style.display = 'none';
+  document.getElementById('register-panel').style.display = 'block';
+}
+function showLogin() {
+  document.getElementById('register-panel').style.display = 'none';
+  document.getElementById('login-panel').style.display = 'block';
+}
+</script>
